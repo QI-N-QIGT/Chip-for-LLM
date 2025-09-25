@@ -1,5 +1,121 @@
-Chip for LLM: An Awesome List for LLM Acceleration项目简介 (Introduction)欢迎来到 Chip for LLM 开源项目！随着大语言模型（LLM）的飞速发展，其惊人的能力背后是对计算和存储资源的巨大需求。如何设计高效的芯片与系统来加速 LLM 的训练与推理，已成为学术界和工业界共同关注的焦点。然而，该领域的知识高度分散，缺乏一个系统性的资源整合平台。本项目的创立初衷，正是为了系统性地梳理和介绍 “面向大语言模型的芯片设计与加速技术” 的全栈知识，旨在为相关领域的研究者、工程师和学生提供一个一站式的学习和参考平台。我们希望将以下核心内容整合在一起：LLM 基础：介绍当前主流 LLM 的网络结构与新兴趋势。硬件需求：详细分析 LLM 对芯片在计算、内存、功耗等方面的核心需求。加速方案：系统梳理学术界的前沿路径与工业界的最佳实践。系统技术：探讨芯片之上的互联、软件栈等关键系统级技术。优质资源：汇集领域内高质量的论文、开源代码和基准测试，构建一个 "Awesome List"。我们相信，通过社区的共同努力，本项目将成为连接 LLM 算法与硬件实现之间的一座重要桥梁。目录 (Table of Contents)1. LLM 基础知识 (LLM Fundamentals)1.1 Transformer 核心架构1.2 主流 LLM 架构演进1.3 新兴 LLM 架构2. LLM 的硬件需求分析 (Hardware Demands of LLMs)2.1 计算特征：无处不在的 GEMM2.2 内存瓶颈：The Memory Wall2.3 数据搬运与能耗2.4 推理 vs. 训练：不同的挑战3. LLM 加速方案 (Acceleration Solutions)3.1 学术界研究路径3.2 工业界主流芯片实践4. 芯片之上的系统级技术 (System-Level Technologies)4.1 互联技术4.2 软件栈与编译器4.3 量化与稀疏化4.4 先进内存技术5. Awesome 论文与开源代码 (Awesome Papers & Code)5.1 基准、评测与分析5.2 基于 GPU 的系统与优化5.3 专用加速器 (ASIC/FPGA)5.4 存内计算与新兴技术5.5 软件与系统协同设计如何贡献 (Contributing)许可证 (License)1. LLM 基础知识 (LLM Fundamentals)这一章节旨在为非算法背景的硬件和系统工程师提供必要的背景知识，理解 LLM 的核心构造是优化硬件设计的前提。1.1 Transformer 核心架构自注意力机制 (Self-Attention): LLM 的核心，也是计算和访存的瓶颈所在。前馈网络 (Feed-Forward Network, FFN): 另一个主要的计算密集型部分。位置编码 (Positional Encoding)层归一化 (Layer Normalization)1.2 主流 LLM 架构演进Encoder-Only (e.g., BERT): 适用于自然语言理解任务。Decoder-Only (e.g., GPT, LLaMA, Gemini): 主流的生成式模型，对推理时的 KV Cache 内存需求巨大。Encoder-Decoder (e.g., T5, BART): 适用于序列到序列任务。1.3 新兴 LLM 架构混合专家模型 (Mixture-of-Experts, MoE): 通过条件计算降低总计算量，但对高速网络互联和动态负载均衡提出新挑战。状态空间模型 (State Space Models, e.g., Mamba): 尝试替代 Transformer，具有线性复杂度和硬件友好的结构。RWKV: 结合了 RNN 和 Transformer 的优点。2. LLM 的硬件需求分析 (Hardware Demands of LLMs)本章深入剖析 LLM 在算法层面上的特征如何转化为对底层硬件的具体需求和挑战。2.1 计算特征：无处不在的 GEMM以矩阵乘法 (GEMM) 为主: 分析 LLM 中 GEMM 的规模、形状和特点。算术强度 (Arithmetic Intensity): 解释为什么 LLM 常常是内存带宽受限 (Memory-bound) 而非计算受限 (Compute-bound)。MAC 利用率: 理论算力峰值 (FLOPs) 与实际性能的差距。2.2 内存瓶颈：The Memory Wall模型权重容量 (Capacity): 数百上千亿的参数对内存容量提出巨大挑战。内存带宽 (Bandwidth): 计算单元常常因等待数据而空闲，带宽成为性能的关键瓶颈。KV Cache: 详细分析推理过程中 KV Cache 的动态增长机制，及其对 SRAM/DRAM 带宽和容量的极端压力。2.3 数据搬运与能耗数据局部性原则的挑战: LLM 巨大的模型规模使得片上缓存（SRAM）难以有效利用。片外访存的代价: 解释为什么数据从 DRAM 搬运到计算单元的能耗远高于计算本身。2.4 推理 vs. 训练：不同的挑战训练 (Training): 追求高吞吐率 (Throughput)，通常采用大批量 (Large Batch Size) 处理，计算密集度高。推理 (Inference): 追求低延迟 (Latency)，通常是小批量（甚至 Batch Size = 1），受内存带宽影响更为严重。3. LLM 加速方案 (Acceleration Solutions)本章系统梳理当前学术界和工业界为应对上述挑战而提出的主要硬件加速方案。3.1 学术界研究路径存内/近内存计算 (CIM/PIM): 旨在通过在存储单元内部或附近执行计算，彻底打破“存储墙”。数据流架构 (Dataflow Architectures): 例如脉动阵列 (Systolic Array) 及其变种，通过精心设计的片上数据流最大化数据复用。光计算 (Photonic Computing): 利用光子进行计算和通信，有望实现极高的带宽和极低的能耗。其他新型范式: （例如模拟计算、随机计算等）。3.2 工业界主流芯片实践GPUs (NVIDIA, AMD): 分析 NVIDIA Tensor Core 和 AMD Matrix Core 如何为矩阵运算提供硬件加速，以及 HBM（高带宽内存）的关键作用。专用 ASICs (Google TPU, Groq LPU, Cerebras, SambaNova): 剖析这些专用芯片的设计哲学，例如 TPU 的脉动阵列、Groq 的确定性执行引擎、Cerebras 的晶圆级芯片等。FPGAs 与自适应 SoC: 探讨 FPGA 在 LLM 加速中的灵活性优势和应用场景。4. 芯片之上的系统级技术 (System-Level Technologies)单颗芯片的性能提升已不足以满足 LLM 的需求，系统级的协同设计变得至关重要。4.1 互联技术片间/机间互联: NVLink, CXL, InfiniBand, RoCE 等技术如何构建强大的计算集群。Scale-up vs. Scale-out: 探讨不同扩展策略下的互联需求。4.2 软件栈与编译器编译器与中间表示 (IR): TVM, MLIR, IREE 等如何将高级模型图编译到异构硬件。运行时与推理引擎: TensorRT-LLM, vLLM, DeepSpeed 等如何优化推理性能。编程模型与 Kernel 库: CUDA, ROCm, Triton 等。4.3 量化与稀疏化低精度数据类型: FP8, INT8, INT4/NF4 等数据格式及其对硬件设计的影响。结构化稀疏: 硬件如何利用权重稀疏性来跳过无效计算，提升效率。算法-硬件协同设计: 强调量化和稀疏化方案需要硬件的原生支持。4.4 先进内存技术HBM (High Bandwidth Memory): HBM3, HBM3e 等技术的发展。3D 堆叠技术: 如何进一步提升内存密度与带宽。5. Awesome 论文与开源代码 (Awesome Papers & Code)本部分旨在收录该领域高质量、有影响力的论文和相关代码，并持续更新。欢迎社区贡献！提交格式建议：**[论文标题]** - *会议/期刊 年份*
+Chip for LLM: An Awesome List for LLM Acceleration
+项目简介 (Introduction)
+欢迎来到 Chip for LLM 开源项目！
+随着大语言模型（LLM）的飞速发展，其惊人的能力背后是对计算和存储资源的巨大需求。如何设计高效的芯片与系统来加速 LLM 的训练与推理，已成为学术界和工业界共同关注的焦点。然而，该领域的知识高度分散，缺乏一个系统性的资源整合平台。
+本项目的创立初衷，正是为了系统性地梳理和介绍 “面向大语言模型的芯片设计与加速技术” 的全栈知识，旨在为相关领域的研究者、工程师和学生提供一个一站式的学习和参考平台。
+我们希望将以下核心内容整合在一起：
+LLM 基础：介绍当前主流 LLM 的网络结构与新兴趋势。
+硬件需求：详细分析 LLM 对芯片在计算、内存、功耗等方面的核心需求。
+加速方案：系统梳理学术界的前沿路径与工业界的最佳实践。
+系统技术：探讨芯片之上的互联、软件栈等关键系统级技术。
+优质资源：汇集领域内高质量的论文、开源代码和基准测试，构建一个 "Awesome List"。
+我们相信，通过社区的共同努力，本项目将成为连接 LLM 算法与硬件实现之间的一座重要桥梁。
+目录 (Table of Contents)
+1. LLM 基础知识 (LLM Fundamentals)
+1.1 Transformer 核心架构
+1.2 主流 LLM 架构演进
+1.3 新兴 LLM 架构
+2. LLM 的硬件需求分析 (Hardware Demands of LLMs)
+2.1 计算特征：无处不在的 GEMM
+2.2 内存瓶颈：The Memory Wall
+2.3 数据搬运与能耗
+2.4 推理 vs. 训练：不同的挑战
+3. LLM 加速方案 (Acceleration Solutions)
+3.1 学术界研究路径
+3.2 工业界主流芯片实践
+4. 芯片之上的系统级技术 (System-Level Technologies)
+4.1 互联技术
+4.2 软件栈与编译器
+4.3 量化与稀疏化
+4.4 先进内存技术
+5. Awesome 论文与开源代码 (Awesome Papers & Code)
+5.1 基准、评测与分析
+5.2 基于 GPU 的系统与优化
+5.3 专用加速器 (ASIC/FPGA)
+5.4 存内计算与新兴技术
+5.5 软件与系统协同设计
+如何贡献 (Contributing)
+许可证 (License)
+1. LLM 基础知识 (LLM Fundamentals)
+这一章节旨在为非算法背景的硬件和系统工程师提供必要的背景知识，理解 LLM 的核心构造是优化硬件设计的前提。
+1.1 Transformer 核心架构
+自注意力机制 (Self-Attention): LLM 的核心，也是计算和访存的瓶颈所在。
+前馈网络 (Feed-Forward Network, FFN): 另一个主要的计算密集型部分。
+位置编码 (Positional Encoding)
+层归一化 (Layer Normalization)
+1.2 主流 LLM 架构演进
+Encoder-Only (e.g., BERT): 适用于自然语言理解任务。
+Decoder-Only (e.g., GPT, LLaMA, Gemini): 主流的生成式模型，对推理时的 KV Cache 内存需求巨大。
+Encoder-Decoder (e.g., T5, BART): 适用于序列到序列任务。
+1.3 新兴 LLM 架构
+混合专家模型 (Mixture-of-Experts, MoE): 通过条件计算降低总计算量，但对高速网络互联和动态负载均衡提出新挑战。
+状态空间模型 (State Space Models, e.g., Mamba): 尝试替代 Transformer，具有线性复杂度和硬件友好的结构。
+RWKV: 结合了 RNN 和 Transformer 的优点。
+2. LLM 的硬件需求分析 (Hardware Demands of LLMs)
+本章深入剖析 LLM 在算法层面上的特征如何转化为对底层硬件的具体需求和挑战。
+2.1 计算特征：无处不在的 GEMM
+以矩阵乘法 (GEMM) 为主: 分析 LLM 中 GEMM 的规模、形状和特点。
+算术强度 (Arithmetic Intensity): 解释为什么 LLM 常常是内存带宽受限 (Memory-bound) 而非计算受限 (Compute-bound)。
+MAC 利用率: 理论算力峰值 (FLOPs) 与实际性能的差距。
+2.2 内存瓶颈：The Memory Wall
+模型权重容量 (Capacity): 数百上千亿的参数对内存容量提出巨大挑战。
+内存带宽 (Bandwidth): 计算单元常常因等待数据而空闲，带宽成为性能的关键瓶颈。
+KV Cache: 详细分析推理过程中 KV Cache 的动态增长机制，及其对 SRAM/DRAM 带宽和容量的极端压力。
+2.3 数据搬运与能耗
+数据局部性原则的挑战: LLM 巨大的模型规模使得片上缓存（SRAM）难以有效利用。
+片外访存的代价: 解释为什么数据从 DRAM 搬运到计算单元的能耗远高于计算本身。
+2.4 推理 vs. 训练：不同的挑战
+训练 (Training): 追求高吞吐率 (Throughput)，通常采用大批量 (Large Batch Size) 处理，计算密集度高。
+推理 (Inference): 追求低延迟 (Latency)，通常是小批量（甚至 Batch Size = 1），受内存带宽影响更为严重。
+3. LLM 加速方案 (Acceleration Solutions)
+本章系统梳理当前学术界和工业界为应对上述挑战而提出的主要硬件加速方案。
+3.1 学术界研究路径
+存内/近内存计算 (CIM/PIM): 旨在通过在存储单元内部或附近执行计算，彻底打破“存储墙”。
+数据流架构 (Dataflow Architectures): 例如脉动阵列 (Systolic Array) 及其变种，通过精心设计的片上数据流最大化数据复用。
+光计算 (Photonic Computing): 利用光子进行计算和通信，有望实现极高的带宽和极低的能耗。
+其他新型范式: （例如模拟计算、随机计算等）。
+3.2 工业界主流芯片实践
+GPUs (NVIDIA, AMD): 分析 NVIDIA Tensor Core 和 AMD Matrix Core 如何为矩阵运算提供硬件加速，以及 HBM（高带宽内存）的关键作用。
+专用 ASICs (Google TPU, Groq LPU, Cerebras, SambaNova): 剖析这些专用芯片的设计哲学，例如 TPU 的脉动阵列、Groq 的确定性执行引擎、Cerebras 的晶圆级芯片等。
+FPGAs 与自适应 SoC: 探讨 FPGA 在 LLM 加速中的灵活性优势和应用场景。
+4. 芯片之上的系统级技术 (System-Level Technologies)
+单颗芯片的性能提升已不足以满足 LLM 的需求，系统级的协同设计变得至关重要。
+4.1 互联技术
+片间/机间互联: NVLink, CXL, InfiniBand, RoCE 等技术如何构建强大的计算集群。
+Scale-up vs. Scale-out: 探讨不同扩展策略下的互联需求。
+4.2 软件栈与编译器
+编译器与中间表示 (IR): TVM, MLIR, IREE 等如何将高级模型图编译到异构硬件。
+运行时与推理引擎: TensorRT-LLM, vLLM, DeepSpeed 等如何优化推理性能。
+编程模型与 Kernel 库: CUDA, ROCm, Triton 等。
+4.3 量化与稀疏化
+低精度数据类型: FP8, INT8, INT4/NF4 等数据格式及其对硬件设计的影响。
+结构化稀疏: 硬件如何利用权重稀疏性来跳过无效计算，提升效率。
+算法-硬件协同设计: 强调量化和稀疏化方案需要硬件的原生支持。
+4.4 先进内存技术
+HBM (High Bandwidth Memory): HBM3, HBM3e 等技术的发展。
+3D 堆叠技术: 如何进一步提升内存密度与带宽。
+5. Awesome 论文与开源代码 (Awesome Papers & Code)
+本部分旨在收录该领域高质量、有影响力的论文和相关代码，并持续更新。欢迎社区贡献！
+提交格式建议：
+**[论文标题]** - *会议/期刊 年份*
 [Paper](URL) | [Code (可选)](URL) | [Project (可选)](URL)
 > 一句话总结该论文的核心贡献。
 
-5.1 基准、评测与分析（待补充）5.2 基于 GPU 的系统与优化FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness - NeurIPS 2022Paper | Code通过 IO 感知的注意力算法设计，显著减少了 GPU HBM 读写量，成为 Transformer 加速的里程碑式工作。5.3 专用加速器 (ASIC/FPGA)In-Datacenter Performance Analysis of a Tensor Processing Unit - ISCA 2017PaperGoogle TPU v1 的开创性论文，详细介绍了其设计哲学和在数据中心的实际性能。5.4 存内计算与新兴技术（待补充）5.5 软件与系统协同设计（待补充）如何贡献 (Contributing)我们热烈欢迎任何形式的贡献！无论是修正错别字、补充新内容、推荐优秀论文，还是提出宝贵建议，都将对社区产生积极影响。请参考我们的 贡献指南 (CONTRIBUTING.md) 来了解详细的贡献流程。许可证 (License)本项目采用 MIT License 开源许可证。
+
+5.1 基准、评测与分析
+（待补充）
+5.2 基于 GPU 的系统与优化
+FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness - NeurIPS 2022
+Paper | Code通过 IO 感知的注意力算法设计，显著减少了 GPU HBM 读写量，成为 Transformer 加速的里程碑式工作。
+5.3 专用加速器 (ASIC/FPGA)
+In-Datacenter Performance Analysis of a Tensor Processing Unit - ISCA 2017
+PaperGoogle TPU v1 的开创性论文，详细介绍了其设计哲学和在数据中心的实际性能。
+5.4 存内计算与新兴技术
+（待补充）
+5.5 软件与系统协同设计
+（待补充）
+如何贡献 (Contributing)
+我们热烈欢迎任何形式的贡献！无论是修正错别字、补充新内容、推荐优秀论文，还是提出宝贵建议，都将对社区产生积极影响。
+请参考我们的 贡献指南 (CONTRIBUTING.md) 来了解详细的贡献流程。
+许可证 (License)
+本项目采用 MIT License 开源许可证。
